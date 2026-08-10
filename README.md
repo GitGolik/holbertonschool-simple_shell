@@ -65,18 +65,35 @@ We approach each task using the following sequence:
 
 ## Current state
 
-The repository has been initialized and Task 0 establishes the initial project
-documentation.
+The repository contains the first functional version of the command
+interpreter developed for Simple Shell 0.1.
 
-The shell implementation itself will be added progressively in later tasks.
+The current implementation can:
+
+- run in interactive and non-interactive mode
+- display the `#cisfun$ ` prompt in interactive mode
+- read command lines with `getline`
+- execute commands provided with their full path
+- create a child process with `fork`
+- execute programs with `execve`
+- wait for the child process with `waitpid`
+- propagate the child process exit status
+- handle end-of-file input
+
+At this stage the shell intentionally does not search commands through
+`PATH`, process command arguments, or implement built-in commands. Those
+features belong to later project requirements and are not documented as
+implemented yet.
 
 ## Documentation
 
-This repository contains:
+This repository currently contains:
 
 - README.md - project overview and evolving technical documentation
 - man_1_simple_shell - manual page for the Simple Shell project
 - AUTHORS - project contributors
+- shell.c - Simple Shell 0.1 execution loop and process handling
+- shell.h - shared declarations and required headers
 
 ## Authors
 
