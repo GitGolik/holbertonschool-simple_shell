@@ -1,17 +1,59 @@
 #include "shell.h"
 
 /**
- * execute_command - executes one command without arguments
- * @command: absolute path of the command to execute
+ * parse_arguments - splits a command line into arguments
+ * @line: command line to parse
+ *
+ * Return: dynamically allocated argument vector, or NULL on failure
+ */
+char **parse_arguments(char *line)
+{
+	char **args;
+	char **new_args;
+	char *token;
+	size_t count = 0;
+	size_t capacity = 8;
+
+	args = malloc(sizeof(char *) * capacity);
+	if (args == NULL)
+		return (NULL);
+
+	token = strtok(line, " \t");
+
+	while (token != NULL)
+	{
+		if (count + 1 >= capacity)
+		{
+			capacity *= 2;
+			new_args = realloc(args, sizeof(char *) * capacity);
+			if (new_args == NULL)
+			{
+				free(args);
+				return (NULL);
+			}
+			args = new_args;
+		}
+
+		args[count] = token;
+		count++;
+		token = strtok(NULL, " \t");
+	}
+
+	args[count] = NULL;
+	return (args);
+}
+
+/**
+ * execute_command - executes a command with its arguments
+ * @args: NULL-terminated argument vector
  * @program_name: shell program name used for error messages
  *
- * Return: 0 on success, -1 on failure
+ * Return: child process exit status, or -1 on failure
  */
-int execute_command(char *command, char *program_name)
+int execute_command(char **args, char *program_name)
 {
 	pid_t child;
 	int status;
-	char *args[2];
 
 	child = fork();
 	if (child == -1)
@@ -22,9 +64,7 @@ int execute_command(char *command, char *program_name)
 
 	if (child == 0)
 	{
-		args[0] = command;
-		args[1] = NULL;
-		execve(command, args, environ);
+		execve(args[0], args, environ);
 		perror(program_name);
 		_exit(127);
 	}
@@ -45,11 +85,42 @@ int execute_command(char *command, char *program_name)
 }
 
 /**
+ * process_line - parses and executes one command line
+ * @line: command line to process
+ * @program_name: shell program name used for errors
+ * @last_status: status before processing the current line
+ *
+ * Return: resulting shell status
+ */
+static int process_line(char *line, char *program_name, int last_status)
+{
+	char **args;
+	int status;
+
+	args = parse_arguments(line);
+	if (args == NULL)
+	{
+		perror(program_name);
+		return (1);
+	}
+
+	if (args[0] == NULL)
+	{
+		free(args);
+		return (last_status);
+	}
+
+	status = execute_command(args, program_name);
+	free(args);
+	return (status);
+}
+
+/**
  * main - runs a minimal UNIX command line interpreter
  * @argc: argument count
  * @argv: argument vector
  *
- * Return: 0 on success
+ * Return: status of the last executed command
  */
 int main(int argc, char **argv)
 {
@@ -77,10 +148,7 @@ int main(int argc, char **argv)
 		if (read_count > 0 && line[read_count - 1] == '\n')
 			line[read_count - 1] = '\0';
 
-		if (line[0] == '\0')
-			continue;
-
-		last_status = execute_command(line, argv[0]);
+		last_status = process_line(line, argv[0], last_status);
 	}
 
 	free(line);

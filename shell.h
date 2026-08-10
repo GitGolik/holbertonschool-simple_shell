@@ -3,12 +3,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
 extern char **environ;
 
-int execute_command(char *command, char *program_name);
+char **parse_arguments(char *line);
+int execute_command(char **args, char *program_name);
 
 #endif

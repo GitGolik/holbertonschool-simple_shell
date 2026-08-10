@@ -65,25 +65,27 @@ We approach each task using the following sequence:
 
 ## Current state
 
-The repository contains the first functional version of the command
-interpreter developed for Simple Shell 0.1.
+The repository contains the functional version developed for Simple Shell
+0.2.
 
 The current implementation can:
 
 - run in interactive and non-interactive mode
 - display the `#cisfun$ ` prompt in interactive mode
 - read command lines with `getline`
+- split command lines into arguments
+- build a NULL-terminated argument vector for `execve`
 - execute commands provided with their full path
+- pass command arguments and options to executed programs
 - create a child process with `fork`
 - execute programs with `execve`
 - wait for the child process with `waitpid`
 - propagate the child process exit status
-- handle end-of-file input
+- handle empty input lines and end-of-file input
 
 At this stage the shell intentionally does not search commands through
-`PATH`, process command arguments, or implement built-in commands. Those
-features belong to later project requirements and are not documented as
-implemented yet.
+`PATH` or implement built-in commands. Those features belong to later
+project requirements and are not documented as implemented yet.
 
 ## Documentation
 
@@ -92,7 +94,7 @@ This repository currently contains:
 - README.md - project overview and evolving technical documentation
 - man_1_simple_shell - manual page for the Simple Shell project
 - AUTHORS - project contributors
-- shell.c - Simple Shell 0.1 execution loop and process handling
+- shell.c - Simple Shell 0.2 parsing, execution loop, and process handling
 - shell.h - shared declarations and required headers
 
 ## Authors
