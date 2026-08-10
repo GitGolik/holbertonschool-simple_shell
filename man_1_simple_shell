@@ -1,0 +1,43 @@
+.TH SIMPLE_SHELL 1 "August 10, 2026" "Holberton School" "Simple Shell Manual"
+.SH NAME
+simple_shell \- simple Unix command interpreter project
+.SH SYNOPSIS
+.B ./hsh
+.SH DESCRIPTION
+Simple Shell is a Holberton School project whose purpose is to study how a
+Unix command interpreter works and to implement a simple shell in C.
+
+The project is developed progressively. Its final behavior is expected to
+follow the project requirements and, unless otherwise specified, reproduce
+the relevant behavior of
+.BR /bin/sh .
+.SH USAGE
+When the shell executable is implemented, it will support the execution modes
+required by the Holberton project.
+
+In interactive mode, the shell reads commands from a terminal.
+
+In non-interactive mode, commands may be supplied through standard input.
+.SH RETURN VALUE
+Exit status behavior will be documented as the implementation progresses and
+is verified against the project requirements.
+.SH EXAMPLES
+The following examples describe the intended invocation of the completed
+program:
+.PP
+.nf
+$ ./hsh
+.fi
+.PP
+or:
+.PP
+.nf
+$ echo "/bin/ls" | ./hsh
+.fi
+.SH NOTES
+This manual page is maintained alongside the implementation. Functionality is
+documented as implemented and verified rather than assumed in advance.
+.SH AUTHORS
+Raider Del Castillo Abalos
+.br
+Theo Golik
