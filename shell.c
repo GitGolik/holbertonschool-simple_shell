@@ -50,7 +50,7 @@ void trim(char *str)
 char *find_path(char *cmd)
 {
 	char *path, *path_copy, *dir, *full_path;
-	size_t path_len, dir_len, cmd_len;
+	size_t dir_len, cmd_len;
 
 	if (cmd[0] == '/')
 	{
