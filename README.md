@@ -10,7 +10,7 @@ créer un shell qui fonctionne en boucle :
     5. dans le parent : attendre la fin de l'enfant (wait)
     6. retourner à l'étape 1
 
-    compilation avec : gcc -Wall -Werror -Wextra -pedantic -std=gnu89 hsh.c -o hsh
+    compilation avec : gcc -Wall -Werror -Wextra -pedantic -std=gnu89 *.c -o hsh
 
 ## Authors
 

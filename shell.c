@@ -17,23 +17,27 @@ int main(void)
 	ssize_t nread;
 	pid_t pid;
 	int status;
+	int interactive;
+
+	interactive = isatty(STDIN_FILENO);
 
 	while (1)
 	{
+		if (interactive)
+		{
 		printf("#cisfun$ ");
 		fflush(stdout);
+		}
 
 		nread = getline(&command, &len, stdin);
 
 		if (nread == -1)
 		{
-			if (feof(stdin))
-			{
+			if (interactive)
 				printf("\n");
-				free(command);
-				exit(0);
-			}
-			continue;
+
+			free(command);
+			exit(0);
 		}
 
 		if ((nread > 0) && (command[nread - 1] == '\n'))
@@ -44,7 +48,7 @@ int main(void)
 		pid = fork();
 		if (pid == -1)
 		{
-			perror("fork");
+			perror("./hsh");
 			continue;
 		}
 
