@@ -27,7 +27,7 @@ void trim(char *str)
 		return;
 	}
 	end = start + len - 1;
-	while (end > start && (*end == ' ' || *end == '\t' || *end == '\n'))
+	while ((end > start) && ((*end == ' ') || (*end == '\t') || (*end == '\n')))
 		end--;
 
 	if (start != str)
