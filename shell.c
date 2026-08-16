@@ -9,7 +9,7 @@ extern char **environ;
 /**
  * trim - remove space before and after the string
  * @str: string to modifie
- * Renturn: nothing
+ * Return: nothing
  */
 void trim(char *str)
 {
@@ -77,7 +77,7 @@ int main(void)
 			exit(0);
 		}
 
-		if ((nread > 0) && (command[nread - 1] == '\n'))
+		if (nread > 0 && command[nread - 1] == '\n')
 			command[nread - 1] = '\0';
 
 		trim(command);
