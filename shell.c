@@ -9,7 +9,7 @@ extern char **environ;
 /**
  * trim - remove space before and after the string
  * @str: string to modifie
- * Return: nothing
+ * Renturn: nothing
  */
 void trim(char *str)
 {
@@ -42,7 +42,7 @@ void trim(char *str)
 }
 
 /**
- * main - entru point of shell
+ * main - entry point of the shell
  * Return: 0 success
  */
 int main(void)
@@ -53,6 +53,9 @@ int main(void)
 	pid_t pid;
 	int status;
 	int interactive;
+	char *args[1024];
+	int i;
+	char *token;
 
 	interactive = isatty(STDIN_FILENO);
 
@@ -82,6 +85,19 @@ int main(void)
 		if (command[0] == '\0')
 			continue;
 
+		i = 0;
+		token = strtok(command, " \t");
+		while (token != NULL && i < 1023)
+		{
+			args[i] = token;
+			i++;
+			token = strtok(NULL, " \t");
+		}
+		args[i] = NULL;
+
+		if (i == 0)
+			continue;
+
 		pid = fork();
 
 		if (pid == -1)
@@ -92,12 +108,7 @@ int main(void)
 
 		if (pid == 0)
 		{
-			char *args[2];
-
-			args[0] = command;
-			args[1] = NULL;
-
-			execve(command, args, environ);
+			execve(args[0], args, environ);
 
 			perror("./hsh");
 			exit(127);
