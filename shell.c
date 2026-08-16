@@ -26,8 +26,9 @@ void trim(char *str)
 		str[0] = '\0';
 		return;
 	}
+
 	end = start + len - 1;
-	while ((end > start) && ((*end == ' ') || (*end == '\t') || (*end == '\n')))
+	while (end > start && (*end == ' ' || *end == '\t' || *end == '\n'))
 		end--;
 
 	if (start != str)
@@ -42,8 +43,69 @@ void trim(char *str)
 }
 
 /**
- * main - entry point of the shell
- * Return: 0 success
+ * find_path - search the PATH
+ * @cmd: name of command
+ * Return: path of malloc or NULL if not found
+ */
+char *find_path(char *cmd)
+{
+	char *path, *path_copy, *dir, *full_path;
+	size_t path_len, dir_len, cmd_len;
+
+	if (cmd[0] == '/')
+	{
+		if (access(cmd, X_OK) == 0)
+		{
+			full_path = malloc(strlen(cmd) + 1);
+			if (full_path)
+				strcpy(full_path, cmd);
+			return (full_path);
+		}
+		return (NULL);
+	}
+
+	path = getenv("PATH");
+	if (path == NULL)
+		return (NULL);
+
+	path_copy = strdup(path);
+	if (path_copy == NULL)
+		return (NULL);
+
+	cmd_len = strlen(cmd);
+	dir = strtok(path_copy, ":");
+
+	while (dir != NULL)
+	{
+		dir_len = strlen(dir);
+		full_path = malloc(dir_len + 1 + cmd_len + 1);
+		if (full_path == NULL)
+		{
+			free(path_copy);
+			return (NULL);
+		}
+
+		strcpy(full_path, dir);
+		strcat(full_path, "/");
+		strcat(full_path, cmd);
+
+		if (access(full_path, X_OK) == 0)
+		{
+			free(path_copy);
+			return (full_path);
+		}
+
+		free(full_path);
+		dir = strtok(NULL, ":");
+	}
+
+	free(path_copy);
+	return (NULL);
+}
+
+/**
+ * main - simple shell entry point
+ * Return: 0 on success
  */
 int main(void)
 {
@@ -56,6 +118,7 @@ int main(void)
 	char *args[1024];
 	int i;
 	char *token;
+	char *cmd_path;
 
 	interactive = isatty(STDIN_FILENO);
 
@@ -98,11 +161,21 @@ int main(void)
 		if (i == 0)
 			continue;
 
+		cmd_path = find_path(args[0]);
+		if (cmd_path == NULL)
+		{
+			perror("./hsh");
+			continue;
+		}
+
+		args[0] = cmd_path;
+
 		pid = fork();
 
 		if (pid == -1)
 		{
 			perror("./hsh");
+			free(cmd_path);
 			continue;
 		}
 
@@ -117,6 +190,8 @@ int main(void)
 		{
 			waitpid(pid, &status, 0);
 		}
+
+		free(cmd_path);
 	}
 
 	free(command);
