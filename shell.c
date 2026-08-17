@@ -7,9 +7,10 @@
 extern char **environ;
 
 /**
- * trim - remove space before and after the string
- * @str: string to modifie
- * Return: nothing
+ * trim - remove leading and trailing spaces and newlines from a string
+ * @str: string to modify (in-place)
+ *
+ * Return: nothing (modifies the string in-place)
  */
 void trim(char *str)
 {
@@ -43,16 +44,38 @@ void trim(char *str)
 }
 
 /**
- * find_path - search the PATH
- * @cmd: name of command
- * Return: path of malloc or NULL if not found
+ * get_path_env - get the value of PATH from the environment
+ *
+ * Return: value of PATH, or NULL if not found
+ */
+char *get_path_env(void)
+{
+	int i;
+	char **env;
+
+	env = environ;
+
+	for (i = 0; env[i] != NULL; i++)
+	{
+		if (strncmp(env[i], "PATH=", 5) == 0)
+			return (env[i] + 5);
+	}
+
+	return (NULL);
+}
+
+/**
+ * find_path - search for an executable in the PATH
+ * @cmd: command name (e.g., "ls")
+ *
+ * Return: full path allocated with malloc, or NULL if not found
  */
 char *find_path(char *cmd)
 {
 	char *path, *path_copy, *dir, *full_path;
 	size_t dir_len, cmd_len;
 
-	if (cmd[0] == '/')
+	if (cmd[0] == '/' || cmd[0] == '.')
 	{
 		if (access(cmd, X_OK) == 0)
 		{
@@ -64,7 +87,7 @@ char *find_path(char *cmd)
 		return (NULL);
 	}
 
-	path = getenv("PATH");
+	path = get_path_env();
 	if (path == NULL)
 		return (NULL);
 
@@ -105,6 +128,7 @@ char *find_path(char *cmd)
 
 /**
  * main - simple shell entry point
+ *
  * Return: 0 on success
  */
 int main(void)
@@ -182,7 +206,6 @@ int main(void)
 		if (pid == 0)
 		{
 			execve(args[0], args, environ);
-
 			perror("./hsh");
 			exit(127);
 		}
