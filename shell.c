@@ -190,6 +190,12 @@ int main(void)
 		if (i == 0)
 			continue;
 
+		if (strcmp(args[0], "exit") == 0)
+		{
+			free(command);
+			exit(status);
+		}
+
 		cmd_path = find_path(args[0]);
 		if (cmd_path == NULL)
 		{
