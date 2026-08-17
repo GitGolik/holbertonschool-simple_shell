@@ -143,11 +143,15 @@ int main(void)
 	int i;
 	char *token;
 	char *cmd_path;
+	int line_num;
 
 	interactive = isatty(STDIN_FILENO);
+	line_num = 0;
 
 	while (1)
 	{
+		line_num++;
+
 		if (interactive)
 		{
 			printf("#cisfun$ ");
@@ -188,7 +192,7 @@ int main(void)
 		cmd_path = find_path(args[0]);
 		if (cmd_path == NULL)
 		{
-			perror("./hsh");
+			fprintf(stderr, "./hsh: %d: %s: not found\n", line_num, args[0]);
 			continue;
 		}
 
