@@ -145,6 +145,7 @@ int main(void)
 	char *cmd_path;
 	int line_num;
 	int last_status;
+	int j;
 
 	interactive = isatty(STDIN_FILENO);
 	line_num = 0;
@@ -198,6 +199,15 @@ int main(void)
 			exit(last_status);
 		}
 
+		/* Built-in: env */
+		if (strcmp(args[0], "env") == 0)
+		{
+			for (j = 0; environ[j] != NULL; j++)
+				printf("%s\n", environ[j]);
+			last_status = 0;
+			continue;
+		}
+
 		cmd_path = find_path(args[0]);
 		if (cmd_path == NULL)
 		{
@@ -227,7 +237,6 @@ int main(void)
 		else
 		{
 			waitpid(pid, &status, 0);
-			/* Extraire le vrai code de retour */
 			if (WIFEXITED(status))
 				last_status = WEXITSTATUS(status);
 			else
