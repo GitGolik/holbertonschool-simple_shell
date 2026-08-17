@@ -144,10 +144,11 @@ int main(void)
 	char *token;
 	char *cmd_path;
 	int line_num;
+	int last_status;
 
 	interactive = isatty(STDIN_FILENO);
 	line_num = 0;
-	status = 0;
+	last_status = 0;
 
 	while (1)
 	{
@@ -166,7 +167,7 @@ int main(void)
 			if (interactive)
 				printf("\n");
 			free(command);
-			exit(status);
+			exit(last_status);
 		}
 
 		if (nread > 0 && command[nread - 1] == '\n')
@@ -190,17 +191,18 @@ int main(void)
 		if (i == 0)
 			continue;
 
+		/* Built-in: exit */
 		if (strcmp(args[0], "exit") == 0)
 		{
 			free(command);
-			exit(status);
+			exit(last_status);
 		}
 
 		cmd_path = find_path(args[0]);
 		if (cmd_path == NULL)
 		{
 			fprintf(stderr, "./hsh: %d: %s: not found\n", line_num, args[0]);
-			status = 127;
+			last_status = 127;
 			continue;
 		}
 
@@ -212,7 +214,7 @@ int main(void)
 		{
 			perror("./hsh");
 			free(cmd_path);
-			status = 1;
+			last_status = 1;
 			continue;
 		}
 
@@ -225,6 +227,11 @@ int main(void)
 		else
 		{
 			waitpid(pid, &status, 0);
+			/* Extraire le vrai code de retour */
+			if (WIFEXITED(status))
+				last_status = WEXITSTATUS(status);
+			else
+				last_status = 1;
 		}
 
 		free(cmd_path);
