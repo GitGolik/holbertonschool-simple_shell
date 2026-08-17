@@ -147,6 +147,7 @@ int main(void)
 
 	interactive = isatty(STDIN_FILENO);
 	line_num = 0;
+	status = 0;
 
 	while (1)
 	{
@@ -165,7 +166,7 @@ int main(void)
 			if (interactive)
 				printf("\n");
 			free(command);
-			exit(0);
+			exit(status);
 		}
 
 		if (nread > 0 && command[nread - 1] == '\n')
@@ -193,6 +194,7 @@ int main(void)
 		if (cmd_path == NULL)
 		{
 			fprintf(stderr, "./hsh: %d: %s: not found\n", line_num, args[0]);
+			status = 127;
 			continue;
 		}
 
@@ -204,6 +206,7 @@ int main(void)
 		{
 			perror("./hsh");
 			free(cmd_path);
+			status = 1;
 			continue;
 		}
 
