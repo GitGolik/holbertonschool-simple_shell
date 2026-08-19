@@ -2,7 +2,8 @@
 
 /**
  * trim - remove leading and trailing spaces and tabs from a string
- * @str: string to modify
+ * @str: string to modify (in-place)
+ *
  * Return: nothing (modifies the string in-place)
  */
 void trim(char *str)
@@ -38,6 +39,7 @@ void trim(char *str)
 
 /**
  * get_path_env - get the value of PATH from the environment
+ *
  * Return: value of PATH, or NULL if not found
  */
 char *get_path_env(void)
@@ -60,6 +62,7 @@ char *get_path_env(void)
  * build_full_path - build full path from directory and command
  * @dir: directory path
  * @cmd: command name
+ *
  * Return: allocated full path, or NULL on failure
  */
 char *build_full_path(const char *dir, const char *cmd)
@@ -81,33 +84,39 @@ char *build_full_path(const char *dir, const char *cmd)
 }
 
 /**
- * find_path - search for an executable in the PATH
- * @cmd: command name
- * Return: full path allocated with malloc, or NULL if not found
+ * check_absolute_path - check if command is absolute or relative path
+ * @cmd: command to check
+ *
+ * Return: allocated path if executable, NULL otherwise
  */
-char *find_path(char *cmd)
+char *check_absolute_path(char *cmd)
 {
-	char *path, *path_copy, *dir, *full_path;
+	char *full_path;
 
-	if (cmd[0] == '/' || cmd[0] == '.')
-	{
-		if (access(cmd, X_OK) == 0)
-		{
-			full_path = malloc(strlen(cmd) + 1);
-			if (full_path)
-				strcpy(full_path, cmd);
-			return (full_path);
-		}
+	if (cmd[0] != '/' && cmd[0] != '.')
 		return (NULL);
+
+	if (access(cmd, X_OK) == 0)
+	{
+		full_path = malloc(strlen(cmd) + 1);
+		if (full_path)
+			strcpy(full_path, cmd);
+		return (full_path);
 	}
 
-	path = get_path_env();
-	if (path == NULL)
-		return (NULL);
+	return (NULL);
+}
 
-	path_copy = strdup(path);
-	if (path_copy == NULL)
-		return (NULL);
+/**
+ * search_in_path - search for command in PATH directories
+ * @path_copy: copy of PATH string (will be modified)
+ * @cmd: command name to search
+ *
+ * Return: allocated full path if found, NULL otherwise
+ */
+char *search_in_path(char *path_copy, const char *cmd)
+{
+	char *dir, *full_path;
 
 	dir = strtok(path_copy, ":");
 
@@ -115,10 +124,7 @@ char *find_path(char *cmd)
 	{
 		full_path = build_full_path(dir, cmd);
 		if (full_path == NULL)
-		{
-			free(path_copy);
 			return (NULL);
-		}
 
 		if (access(full_path, X_OK) == 0)
 		{
@@ -130,6 +136,30 @@ char *find_path(char *cmd)
 		dir = strtok(NULL, ":");
 	}
 
-	free(path_copy);
 	return (NULL);
+}
+
+/**
+ * find_path - search for an executable in the PATH
+ * @cmd: command name (e.g., "ls")
+ *
+ * Return: full path allocated with malloc, or NULL if not found
+ */
+char *find_path(char *cmd)
+{
+	char *path, *path_copy, *full_path;
+
+	full_path = check_absolute_path(cmd);
+	if (full_path != NULL)
+		return (full_path);
+
+	path = get_path_env();
+	if (path == NULL)
+		return (NULL);
+
+	path_copy = strdup(path);
+	if (path_copy == NULL)
+		return (NULL);
+
+	return (search_in_path(path_copy, cmd));
 }

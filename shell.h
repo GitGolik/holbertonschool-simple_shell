@@ -13,6 +13,13 @@ void trim(char *str);
 char *get_path_env(void);
 char *find_path(char *cmd);
 char *build_full_path(const char *dir, const char *cmd);
+char *check_absolute_path(char *cmd);
+char *search_in_path(char *path_copy, const char *cmd);
+
+void wait_for_child(pid_t pid, int *last_status);
+void print_prompt(void);
+int read_command(char **command, size_t *len, int interactive);
+int process_line(char *command, char **args, int line_num, int *last_status);
 
 int execute_builtin(char **args, int *last_status);
 int execute_external(char **args, int line_num, int *last_status);
