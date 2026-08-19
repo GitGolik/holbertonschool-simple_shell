@@ -1,4 +1,4 @@
-#include "shell.c"
+#include "shell.h"
 
 /**
  * find_path - search for an executable in the PATH
