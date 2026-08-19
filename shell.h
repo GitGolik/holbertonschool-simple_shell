@@ -11,6 +11,10 @@ extern char **environ;
 
 void trim(char *str);
 char *get_path_env(void);
+char *find_in_path_dirs(char *cmd, char *path_copy);
+char *find_path_absolute(char *cmd);
 char *find_path(char *cmd);
+void print_env(void);
+void run_command(char **args, int *last_status);
 
 #endif

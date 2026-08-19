@@ -9,16 +9,12 @@ int main(void)
 	char *command = NULL;
 	size_t len = 0;
 	ssize_t nread;
-	pid_t pid;
-	int status;
 	int interactive;
 	char *args[1024];
 	int i;
 	char *token;
-	char *cmd_path;
 	int line_num;
 	int last_status;
-	int j;
 
 	interactive = isatty(STDIN_FILENO);
 	line_num = 0;
@@ -73,48 +69,20 @@ int main(void)
 
 		if (strcmp(args[0], "env") == 0)
 		{
-			for (j = 0; environ[j] != NULL; j++)
-				printf("%s\n", environ[j]);
+			print_env();
 			last_status = 0;
 			continue;
 		}
 
-		cmd_path = find_path(args[0]);
-		if (cmd_path == NULL)
+		if (find_path(args[0]) == NULL)
 		{
-			fprintf(stderr, "./hsh: %d: %s: not found\n", line_num, args[0]);
+			fprintf(stderr, "./hsh: %d: %s: not found\n",
+				line_num, args[0]);
 			last_status = 127;
 			continue;
 		}
 
-		args[0] = cmd_path;
-
-		pid = fork();
-
-		if (pid == -1)
-		{
-			perror("./hsh");
-			free(cmd_path);
-			last_status = 1;
-			continue;
-		}
-
-		if (pid == 0)
-		{
-			execve(args[0], args, environ);
-			perror("./hsh");
-			exit(127);
-		}
-		else
-		{
-			waitpid(pid, &status, 0);
-			if (WIFEXITED(status))
-				last_status = WEXITSTATUS(status);
-			else
-				last_status = 1;
-		}
-
-		free(cmd_path);
+		run_command(args, &last_status);
 	}
 
 	free(command);
