@@ -16,7 +16,6 @@ int execute_command(char **args, int line_num, int *last_status)
 
 	if (strcmp(args[0], "exit") == 0)
 		return (-1);
-
 	if (strcmp(args[0], "env") == 0)
 	{
 		for (j = 0; environ[j] != NULL; j++)
@@ -24,7 +23,6 @@ int execute_command(char **args, int line_num, int *last_status)
 		*last_status = 0;
 		return (0);
 	}
-
 	cmd_path = find_path(args[0]);
 	if (cmd_path == NULL)
 	{
@@ -32,9 +30,7 @@ int execute_command(char **args, int line_num, int *last_status)
 		*last_status = 127;
 		return (0);
 	}
-
 	args[0] = cmd_path;
-
 	pid = fork();
 	if (pid == -1)
 	{
@@ -43,7 +39,6 @@ int execute_command(char **args, int line_num, int *last_status)
 		*last_status = 1;
 		return (0);
 	}
-
 	if (pid == 0)
 	{
 		execve(args[0], args, environ);
@@ -58,7 +53,6 @@ int execute_command(char **args, int line_num, int *last_status)
 		else
 			*last_status = 1;
 	}
-
 	free(cmd_path);
 	return (0);
 }
@@ -105,17 +99,14 @@ void run_shell(void)
 	interactive = isatty(STDIN_FILENO);
 	line_num = 0;
 	last_status = 0;
-
 	while (1)
 	{
 		line_num++;
-
 		if (interactive)
 		{
 			printf("#cisfun$ ");
 			fflush(stdout);
 		}
-
 		nread = getline(&command, &len, stdin);
 		if (nread == -1)
 		{
@@ -124,25 +115,20 @@ void run_shell(void)
 			free(command);
 			exit(last_status);
 		}
-
 		if (nread > 0 && command[nread - 1] == '\n')
 			command[nread - 1] = '\0';
 
 		trim(command);
-
 		if (command[0] == '\0')
 			continue;
-
 		arg_count = parse_line(command, args);
 		if (arg_count == 0)
 			continue;
-
 		if (execute_command(args, line_num, &last_status) == -1)
 		{
 			free(command);
 			exit(last_status);
 		}
 	}
-
 	free(command);
 }

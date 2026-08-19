@@ -77,18 +77,14 @@ char *find_path(char *cmd)
 		}
 		return (NULL);
 	}
-
 	path = get_path_env();
 	if (path == NULL)
 		return (NULL);
-
 	path_copy = strdup(path);
 	if (path_copy == NULL)
 		return (NULL);
-
 	cmd_len = strlen(cmd);
 	dir = strtok(path_copy, ":");
-
 	while (dir != NULL)
 	{
 		dir_len = strlen(dir);
@@ -98,21 +94,17 @@ char *find_path(char *cmd)
 			free(path_copy);
 			return (NULL);
 		}
-
 		strcpy(full_path, dir);
 		strcat(full_path, "/");
 		strcat(full_path, cmd);
-
 		if (access(full_path, X_OK) == 0)
 		{
 			free(path_copy);
 			return (full_path);
 		}
-
 		free(full_path);
 		dir = strtok(NULL, ":");
 	}
-
 	free(path_copy);
 	return (NULL);
 }
