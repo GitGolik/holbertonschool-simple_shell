@@ -137,24 +137,18 @@ void run_shell(void)
 	while (1)
 	{
 		line_num++;
-
 		if (interactive)
 			print_prompt();
-
 		if (read_command(&command, &len, interactive) == 0)
 		{
 			free(command);
 			exit(last_status);
 		}
-
 		trim(command);
-
 		if (command[0] == '\0')
 			continue;
-
 		if (parse_line(command, args) == 0)
 			continue;
-
 		result = execute_command(args, line_num, &last_status);
 		if (result == -1)
 		{
@@ -162,6 +156,5 @@ void run_shell(void)
 			exit(last_status);
 		}
 	}
-
 	free(command);
 }
