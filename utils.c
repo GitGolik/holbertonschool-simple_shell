@@ -2,7 +2,7 @@
 
 /**
  * trim - remove leading and trailing spaces and tabs from a string
- * @str: string to modify (in-place)
+ * @str: string to modify
  * Return: nothing (modifies the string in-place)
  */
 void trim(char *str)
@@ -57,14 +57,37 @@ char *get_path_env(void)
 }
 
 /**
+ * build_full_path - build full path from directory and command
+ * @dir: directory path
+ * @cmd: command name
+ * Return: allocated full path, or NULL on failure
+ */
+char *build_full_path(const char *dir, const char *cmd)
+{
+	char *full_path;
+	size_t dir_len, cmd_len;
+
+	dir_len = strlen(dir);
+	cmd_len = strlen(cmd);
+	full_path = malloc(dir_len + 1 + cmd_len + 1);
+	if (full_path == NULL)
+		return (NULL);
+
+	strcpy(full_path, dir);
+	strcat(full_path, "/");
+	strcat(full_path, cmd);
+
+	return (full_path);
+}
+
+/**
  * find_path - search for an executable in the PATH
- * @cmd: command name (e.g., "ls")
+ * @cmd: command name
  * Return: full path allocated with malloc, or NULL if not found
  */
 char *find_path(char *cmd)
 {
 	char *path, *path_copy, *dir, *full_path;
-	size_t dir_len, cmd_len;
 
 	if (cmd[0] == '/' || cmd[0] == '.')
 	{
@@ -77,34 +100,36 @@ char *find_path(char *cmd)
 		}
 		return (NULL);
 	}
+
 	path = get_path_env();
 	if (path == NULL)
 		return (NULL);
+
 	path_copy = strdup(path);
 	if (path_copy == NULL)
 		return (NULL);
-	cmd_len = strlen(cmd);
+
 	dir = strtok(path_copy, ":");
+
 	while (dir != NULL)
 	{
-		dir_len = strlen(dir);
-		full_path = malloc(dir_len + 1 + cmd_len + 1);
+		full_path = build_full_path(dir, cmd);
 		if (full_path == NULL)
 		{
 			free(path_copy);
 			return (NULL);
 		}
-		strcpy(full_path, dir);
-		strcat(full_path, "/");
-		strcat(full_path, cmd);
+
 		if (access(full_path, X_OK) == 0)
 		{
 			free(path_copy);
 			return (full_path);
 		}
+
 		free(full_path);
 		dir = strtok(NULL, ":");
 	}
+
 	free(path_copy);
 	return (NULL);
 }

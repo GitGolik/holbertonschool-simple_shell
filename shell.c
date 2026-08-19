@@ -1,28 +1,42 @@
 #include "shell.h"
 
 /**
- * execute_command - execute a single command
- * @args: array of arguments (NULL-terminated)
- * @line_num: current line number for error messages
+ * execute_builtin - execute built-in commands (exit, env)
+ * @args: array of arguments
  * @last_status: pointer to last command status
- * Return: 0 on success, 1 on failure
+ * Return: 0 if not a builtin, -1 if exit, 1 if env executed
  */
-int execute_command(char **args, int line_num, int *last_status)
+int execute_builtin(char **args, int *last_status)
 {
-	pid_t pid;
-	int status;
-	char *cmd_path;
 	int j;
 
 	if (strcmp(args[0], "exit") == 0)
 		return (-1);
+
 	if (strcmp(args[0], "env") == 0)
 	{
 		for (j = 0; environ[j] != NULL; j++)
 			printf("%s\n", environ[j]);
 		*last_status = 0;
-		return (0);
+		return (1);
 	}
+
+	return (0);
+}
+
+/**
+ * execute_external - execute an external command
+ * @args: array of arguments (args[0] will be modified)
+ * @line_num: current line number for error messages
+ * @last_status: pointer to last command status
+ * Return: 0 on success
+ */
+int execute_external(char **args, int line_num, int *last_status)
+{
+	pid_t pid;
+	int status;
+	char *cmd_path;
+
 	cmd_path = find_path(args[0]);
 	if (cmd_path == NULL)
 	{
@@ -30,7 +44,9 @@ int execute_command(char **args, int line_num, int *last_status)
 		*last_status = 127;
 		return (0);
 	}
+
 	args[0] = cmd_path;
+
 	pid = fork();
 	if (pid == -1)
 	{
@@ -39,6 +55,7 @@ int execute_command(char **args, int line_num, int *last_status)
 		*last_status = 1;
 		return (0);
 	}
+
 	if (pid == 0)
 	{
 		execve(args[0], args, environ);
@@ -53,8 +70,27 @@ int execute_command(char **args, int line_num, int *last_status)
 		else
 			*last_status = 1;
 	}
+
 	free(cmd_path);
 	return (0);
+}
+
+/**
+ * execute_command - execute a single command
+ * @args: array of arguments (NULL-terminated)
+ * @line_num: current line number for error messages
+ * @last_status: pointer to last command status
+ * Return: 0 on success, -1 on exit command
+ */
+int execute_command(char **args, int line_num, int *last_status)
+{
+	int result;
+
+	result = execute_builtin(args, last_status);
+	if (result != 0)
+		return (result);
+
+	return (execute_external(args, line_num, last_status));
 }
 
 /**
@@ -99,14 +135,17 @@ void run_shell(void)
 	interactive = isatty(STDIN_FILENO);
 	line_num = 0;
 	last_status = 0;
+
 	while (1)
 	{
 		line_num++;
+
 		if (interactive)
 		{
 			printf("#cisfun$ ");
 			fflush(stdout);
 		}
+
 		nread = getline(&command, &len, stdin);
 		if (nread == -1)
 		{
@@ -115,20 +154,25 @@ void run_shell(void)
 			free(command);
 			exit(last_status);
 		}
+
 		if (nread > 0 && command[nread - 1] == '\n')
 			command[nread - 1] = '\0';
 
 		trim(command);
+
 		if (command[0] == '\0')
 			continue;
+
 		arg_count = parse_line(command, args);
 		if (arg_count == 0)
 			continue;
+
 		if (execute_command(args, line_num, &last_status) == -1)
 		{
 			free(command);
 			exit(last_status);
 		}
 	}
+
 	free(command);
 }
