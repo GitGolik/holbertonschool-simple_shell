@@ -1,7 +1,7 @@
 #include "shell.h"
 
 /**
- * get_path_env - get the value of PATH from the environment
+ * get_path_env - get the value of PATH from environment
  * Return: value of PATH, or NULL if not found
  */
 char *get_path_env(void)

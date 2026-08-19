@@ -2,7 +2,6 @@
 
 /**
  * print_env - print the current environment
- * Return: nothing
  */
 void print_env(void)
 {

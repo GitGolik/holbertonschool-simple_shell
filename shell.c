@@ -11,10 +11,9 @@ int main(void)
 	ssize_t nread;
 	int interactive;
 	char *args[1024];
-	int i;
-	char *token;
 	int line_num;
 	int last_status;
+	int arg_count;
 
 	interactive = isatty(STDIN_FILENO);
 	line_num = 0;
@@ -48,17 +47,9 @@ int main(void)
 		if (command[0] == '\0')
 			continue;
 
-		i = 0;
-		token = strtok(command, " \t");
-		while (token != NULL && i < 1023)
-		{
-			args[i] = token;
-			i++;
-			token = strtok(NULL, " \t");
-		}
-		args[i] = NULL;
+		parse_command(command, args, &arg_count);
 
-		if (i == 0)
+		if (arg_count == 0)
 			continue;
 
 		if (strcmp(args[0], "exit") == 0)
@@ -76,13 +67,11 @@ int main(void)
 
 		if (find_path(args[0]) == NULL)
 		{
-			fprintf(stderr, "./hsh: %d: %s: not found\n",
-				line_num, args[0]);
-			last_status = 127;
+			handle_not_found(args[0], line_num, &last_status);
 			continue;
 		}
 
-		run_command(args, &last_status);
+		exec_cmd(args, &last_status);
 	}
 
 	free(command);

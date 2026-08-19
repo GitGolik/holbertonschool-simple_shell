@@ -1,9 +1,8 @@
 #include "shell.h"
 
 /**
- * trim - remove leading and trailing spaces and newlines from a string
+ * trim - remove leading and trailing spaces from a string
  * @str: string to modify (in-place)
- * Return: nothing (modifies the string in-place)
  */
 void trim(char *str)
 {
