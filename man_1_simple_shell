@@ -1,0 +1,291 @@
+.TH HSH 1 "August 2026" "hsh 1.0" "User Commands"
+.SH NAME
+hsh \- simple Unix shell implementation in C
+.SH SYNOPSIS
+.B ./hsh
+.SH DESCRIPTION
+.B hsh
+is a simple Unix command interpreter written in C. It reads commands from
+standard input, separates each command from its arguments, and executes
+built-in or external commands.
+.PP
+The shell supports both interactive and non-interactive execution modes.
+.SH INTERACTIVE MODE
+When standard input is connected to a terminal,
+.B hsh
+displays the prompt:
+.PP
+.RS
+.B #cisfun$
+.RE
+.PP
+The shell then waits for the user to enter a command.
+.SH NON-INTERACTIVE MODE
+When standard input is not connected to a terminal,
+.B hsh
+reads commands from standard input without displaying the prompt.
+.PP
+Examples:
+.RS
+.nf
+.B echo "ls" | ./hsh
+.B cat commands.txt | ./hsh
+.B ./hsh < input.txt
+.fi
+.RE
+.SH BUILT-IN COMMANDS
+.TP
+.B exit
+Exit the shell using the currently stored command status.
+.TP
+.B env
+Display each environment entry on a seperate line.
+.SH COMMAND PARSING
+The command line is split into a command and its arguments using spaces and
+tab characters as delimiters.
+.PP
+Empty input lines are ignored. Leading and trailing whitespace is automatically
+trimmed.
+.SH COMMAND EXECUTION
+Before executing an external command,
+.B hsh
+resolves the executable path.
+.PP
+If a command begins with
+.B /
+or
+.B .
+, the shell treats it as a direct executable path and checks whether it can
+be executed using
+.BR access (2).
+.PP
+If only a command name is provided, the shell searches for the executable in
+the directories listed in the
+.B PATH
+environment variable.
+.PP
+When a valid executable is found, the shell:
+.PP
+.RS
+1. Creates a child process using
+.BR fork (2)
+.RE
+.RS
+2. The child executes the command using
+.BR execve (2)
+.RE
+.RS
+3. The parent waits for the child using
+.BR waitpid (2)
+.RE
+.RS
+4. Stores the resulting exit status for future use
+.RE
+.SH PATH RESOLUTION
+Commands given as direct paths (starting with
+.B /
+or
+.B . )
+are checked directly for executability.
+.PP
+Commands given without a direct path are searched for in the directories
+contained in the
+.B PATH
+environment variable, in order from left to right.
+.PP
+If
+.B PATH
+is not available, or if no executable matching the command can be found, the
+command is not executed and an error is reported.
+.SH ERRORS
+If a command cannot be found,
+.B hsh
+prints an error in the following form:
+.PP
+.RS
+.B ./hsh: line_number: command: not found
+.RE
+.PP
+Error status codes:
+.TP
+.B 127
+Command not found
+.TP
+.B 1
+Fork failure or execution error
+.TP
+.B N
+Exit status of the last successfully executed command
+.PP
+If
+.B fork
+fails, the shell reports an error using
+.BR perror (3)
+and sets the status to 1.
+.PP
+If
+.B execve
+fails in the child process, the child reports the error and exits with
+status 127.
+.SH EXIT STATUS
+.B hsh
+stores the status of the last executed command.
+.PP
+When a child process terminates normally, the parent retrieves its exit
+status with
+.BR waitpid (2)
+using
+.BR WIFEXITED (3)
+and
+.BR WEXITSTATUS (3).
+.PP
+The
+.B exit
+built-in exits the shell using the currently stored status.
+.PP
+When end-of-file (EOF) is reached on standard input, the shell also exits
+using the stored status.
+.SH COMPILATION
+Compile the project with:
+.PP
+.RS
+.nf
+.B gcc -Wall -Werror -Wextra -pedantic -std=gnu89 *.c -o hsh
+.fi
+.RE
+.SH EXAMPLES
+Start the shell in interactive mode:
+.PP
+.RS
+.nf
+.B ./hsh
+#cisfun$ /bin/ls
+#cisfun$ env
+#cisfun$ exit
+.fi
+.RE
+.PP
+Execute a command in non-interactive mode:
+.PP
+.RS
+.nf
+.B echo "ls" | ./hsh
+.B cat test.txt | ./hsh
+.fi
+.RE
+.PP
+Execute a command using an absolute path:
+.PP
+.RS
+.nf
+.B /bin/echo hello
+.fi
+.RE
+.PP
+Display the environment:
+.PP
+.RS
+.nf
+.B env
+.fi
+.RE
+.PP
+Exit the shell:
+.PP
+.RS
+.nf
+.B exit
+.fi
+.RE
+.SH FILES
+.TP
+.B main.c
+Program entry point. Contains the
+.B main()
+function.
+.TP
+.B shell.c
+Contains built-in handling, external command execution, command parsing,
+and the main shell control flow.
+.TP
+.B shell_loop.c
+Contains prompt, input, command-processing, and child-process helper functions.
+.TP
+.B path_utils.c
+Contains direct-path validation and PATH command resolution functions.
+.TP
+.B utils.c
+Contains utility functions (trim, get_path_env, build_full_path).
+.TP
+.B shell.h
+Header file with shared declarations, includes, and function prototypes.
+.TP
+.B README.md
+Project documentation with flowchart and usage examples.
+.TP
+.B AUTHORS
+List of project contributors.
+.SH BUGS
+This is a simplified shell implementation for educational purposes. It does not
+support:
+.PP
+.RS
+- Pipes (|)
+.RE
+.RS
+- I/O redirections (>, <, >>, 2>, etc.)
+.RE
+.RS
+- Background processes (&)
+.RE
+.RS
+- Command substitution $(...) or `...`
+.RE
+.RS
+- Wildcards/globbing (*, ?, [])
+.RE
+.RS
+- Shell variables and parameter expansion
+.RE
+.RS
+- Job control (fg, bg, jobs)
+.RE
+.SH AUTHORS
+Raider Del Castillo Abalos
+.PP
+Theo Golik
+.SH "SEE ALSO"
+.BR sh (1),
+.BR bash (1),
+.BR dash (1),
+.BR execve (2),
+.BR fork (2),
+.BR waitpid (2),
+.BR access (2),
+.BR getenv (3)
+.SH NOTES
+.B hsh
+is designed to match the behavior of
+.BR sh (1)
+for basic command execution. Error messages follow the same format, with the
+program name matching argv[0] as required by POSIX.
+.PP
+The shell is intended for educational purposes to demonstrate:
+.PP
+.RS
+- Process creation and management with fork/execve/waitpid
+.RE
+.RS
+- Environment variable manipulation
+.RE
+.RS
+- PATH-based executable resolution
+.RE
+.RS
+- Interactive vs non-interactive I/O handling
+.RE
+.PP
+For production use, consider more complete shells such as
+.BR bash (1)
+or
+.BR dash (1).
