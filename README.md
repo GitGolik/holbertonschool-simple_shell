@@ -127,11 +127,17 @@ Header file with all function prototypes and includes.
 ## File Organization Summary
 .
 ├── main.c # Entry point (1 function)
+|
 ├── shell.c # Main shell logic (5 functions)
+|
 ├── shell_loop.c # Shell loop helpers (3 functions)
+|
 ├── utils.c # Utility functions (3 functions)
+|
 ├── path_utils.c # PATH lookup functions (3 functions)
+|
 ├── shell.h # Header file with prototypes
+|
 └── README.md # This documentation file
 
 text
