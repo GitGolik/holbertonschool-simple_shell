@@ -67,11 +67,11 @@ Main shell logic and command execution.
 
 | Function | Description |
 
-| `execute_builtin()` | Handles built-in commands (`exit`, `env`). Returns -1 for exit, 1 for env executed, 0 otherwise |
-| `execute_external()` | Executes external commands via `fork()` and `execve()`. Handles PATH lookup and error reporting |
-| `execute_command()` | Main command dispatcher. Calls `execute_builtin()` first, then `execute_external()` if not a builtin |
-| `parse_line()` | Tokenizes a command line into arguments using `strtok()`. Stores up to 1023 arguments |
-| `run_shell()` | Main shell loop. Initializes variables and runs the infinite loop until exit or EOF |
+- | `execute_builtin()` | Handles built-in commands (`exit`, `env`). Returns -1 for exit, 1 for env executed, 0 otherwise |
+- | `execute_external()` | Executes external commands via `fork()` and `execve()`. Handles PATH lookup and error reporting |
+- | `execute_command()` | Main command dispatcher. Calls `execute_builtin()` first, then `execute_external()` if not a builtin |
+- | `parse_line()` | Tokenizes a command line into arguments using `strtok()`. Stores up to 1023 arguments |
+- | `run_shell()` | Main shell loop. Initializes variables and runs the infinite loop until exit or EOF |
 
 ---
 
@@ -81,9 +81,9 @@ Helper functions for the shell loop.
 
 | Function | Description |
 
-| `wait_for_child()` | Waits for child process to terminate using `waitpid()`. Updates last_status with exit code |
-| `print_prompt()` | Displays the interactive prompt `#cisfun$ ` and flushes stdout |
-| `read_command()` | Reads a line from stdin using `getline()`. Handles EOF and removes trailing newline |
+- | `wait_for_child()` | Waits for child process to terminate using `waitpid()`. Updates last_status with exit code |
+- | `print_prompt()` | Displays the interactive prompt `#cisfun$ ` and flushes stdout |
+- | `read_command()` | Reads a line from stdin using `getline()`. Handles EOF and removes trailing newline |
 
 ---
 
@@ -93,9 +93,9 @@ General utility functions.
 
 | Function | Description |
 
-| `trim()` | Removes leading and trailing spaces/tabs from a string (in-place modification) |
-| `get_path_env()` | Searches the environment for the PATH variable and returns its value |
-| `build_full_path()` | Constructs a full path by concatenating directory + `/` + command name |
+- | `trim()` | Removes leading and trailing spaces/tabs from a string (in-place modification) |
+- | `get_path_env()` | Searches the environment for the PATH variable and returns its value |
+- | `build_full_path()` | Constructs a full path by concatenating directory + `/` + command name |
 
 ---
 
@@ -105,9 +105,9 @@ PATH lookup and command resolution.
 
 | Function | Description |
 
-| `check_absolute_path()` | Checks if command starts with `/` or `.`. Returns allocated path if executable |
-| `search_in_path()` | Iterates through PATH directories using `strtok()`. Returns first matching executable |
-| `find_path()` | Main PATH lookup function. Calls `check_absolute_path()` first, then `search_in_path()` |
+- | `check_absolute_path()` | Checks if command starts with `/` or `.`. Returns allocated path if executable |
+- | `search_in_path()` | Iterates through PATH directories using `strtok()`. Returns first matching executable |
+- | `find_path()` | Main PATH lookup function. Calls `check_absolute_path()` first, then `search_in_path()` |
 
 ---
 
@@ -117,22 +117,22 @@ Header file with all function prototypes and includes.
 
 | Content | Description |
 
-| Header guards | `#ifndef SHELL_H`, `#define SHELL_H`, `#endif` |
-| Standard includes | `stdio.h`, `stdlib.h`, `unistd.h`, `sys/wait.h`, `string.h` |
-| External declaration | `extern char **environ` for environment access |
-| Function prototypes | All functions from the 4 .c files declared for cross-file usage |
+- | Header guards | `#ifndef SHELL_H`, `#define SHELL_H`, `#endif` |
+- | Standard includes | `stdio.h`, `stdlib.h`, `unistd.h`, `sys/wait.h`, `string.h` |
+- | External declaration | `extern char **environ` for environment access |
+- | Function prototypes | All functions from the 4 .c files declared for cross-file usage |
 
 ---
 
 ## File Organization Summary
 
-main.c # Entry point (1 function)
-shell.c # Main shell logic (5 functions)
-shell_loop.c # Shell loop helpers (3 functions)
-utils.c # Utility functions (3 functions)
-path_utils.c # PATH lookup functions (3 functions)
-shell.h # Header file with prototypes
-README.md # This documentation file
+- main.c # Entry point (1 function)
+- shell.c # Main shell logic (5 functions)
+- shell_loop.c # Shell loop helpers (3 functions)
+- utils.c # Utility functions (3 functions)
+- path_utils.c # PATH lookup functions (3 functions)
+- shell.h # Header file with prototypes
+- README.md # This documentation file
 
 text
 
